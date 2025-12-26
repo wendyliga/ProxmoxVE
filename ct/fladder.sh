@@ -28,7 +28,7 @@ function update_script() {
     msg_error "No ${APP} Installation Found!"
     exit
   fi
-  RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+  RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | grep "tag_name" | awk '{print substr($2, 2, length($2)-3) }')
   if [[ -z "$RELEASE" ]]; then
     msg_error "Failed to fetch latest release version from GitHub"
     exit 1
@@ -38,23 +38,15 @@ function update_script() {
     systemctl stop fladder
     msg_ok "Stopped Service"
 
-    msg_info "Updating ${APP} to v${RELEASE}"
+    msg_info "Updating ${APP} to ${RELEASE}"
     temp_file=$(mktemp)
-    if [[ "$VERBOSE" == "yes" ]]; then
-      echo "Downloading Fladder v${RELEASE}..."
-      curl -fL# "https://github.com/DonutWare/Fladder/releases/download/v${RELEASE}/Fladder-Linux-${RELEASE}.zip" -o "$temp_file"
-      echo "Extracting Fladder..."
-      rm -rf /opt/fladder/*
-      unzip -o "$temp_file" -d /opt/fladder
-    else
-      curl -fsSL "https://github.com/DonutWare/Fladder/releases/download/v${RELEASE}/Fladder-Linux-${RELEASE}.zip" -o "$temp_file"
-      rm -rf /opt/fladder/*
-      $STD unzip -o "$temp_file" -d /opt/fladder
-    fi
+    curl -fsSL "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip" -o "$temp_file"
+    rm -rf /opt/fladder/*
+    $STD unzip -o "$temp_file" -d /opt/fladder
     rm -f "$temp_file"
     chmod +x /opt/fladder/Fladder
     echo "${RELEASE}" >/opt/${APP}_version.txt
-    msg_ok "Updated ${APP} to v${RELEASE}"
+    msg_ok "Updated ${APP} to ${RELEASE}"
 
     msg_info "Starting Service"
     systemctl start fladder
