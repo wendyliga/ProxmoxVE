@@ -2,7 +2,7 @@
 
 # Copyright (c) 2021-2025 community-scripts ORG
 # Author: wendyliga
-# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# License: MIT | https://github.com/wendyliga/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/DonutWare/Fladder
 
 source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
@@ -49,7 +49,9 @@ server {
 }
 EOF
 rm -f /etc/nginx/sites-enabled/default
+rm -f /etc/nginx/sites-available/default
 systemctl enable -q --now nginx
+systemctl reload nginx
 msg_ok "Configured Nginx"
 
 motd_ssh
