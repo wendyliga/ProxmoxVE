@@ -28,7 +28,9 @@ function update_script() {
     msg_error "No ${APP} Installation Found!"
     exit
   fi
-  RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | jq -r '.tag_name')
+  # Get latest version from GitHub
+  RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | \
+    grep "tag_name" | awk '{print substr($2, 2, length($2)-3)}')
   if [[ -z "$RELEASE" ]]; then
     msg_error "Failed to fetch latest release version from GitHub"
     exit 1
@@ -43,11 +45,8 @@ function update_script() {
     URL="https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
     msg_info "Downloading from $URL"
 
-    if ! $STD curl -fSL "$URL" -o "$temp_file"; then
-      msg_error "Download failed: $URL"
-      rm -f "$temp_file"
-      exit 1
-    fi
+    wget -q "$URL" -O "$temp_file"
+    
     rm -rf /opt/fladder/*
     if ! $STD unzip -o "$temp_file" -d /opt/fladder; then
       msg_error "Extraction failed from $temp_file"

@@ -15,16 +15,15 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt-get install -y \
-  curl \
   wget \
   unzip \
-  libmpv-dev \
-  jq
+  libmpv-dev
 msg_ok "Installed Dependencies"
 
 msg_info "Installing ${APPLICATION}"
-RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | jq -r '.tag_name')
-
+# Get latest version from GitHub
+RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | \
+    grep "tag_name" | awk '{print substr($2, 2, length($2)-3)}')
 cd /opt
 $STD wget -q "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
 $STD unzip -o "Fladder-Linux-${RELEASE#v}.zip" -d fladder
