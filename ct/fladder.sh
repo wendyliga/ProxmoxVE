@@ -40,7 +40,10 @@ function update_script() {
 
     msg_info "Updating ${APP} to ${RELEASE}"
     temp_file=$(mktemp)
-    curl -fsSL "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip" -o "$temp_file"
+    URL="https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
+    echo "Downloading from $URL"
+    
+    curl -fsSL "$URL" -o "$temp_file"
     rm -rf /opt/fladder/*
     $STD unzip -o "$temp_file" -d /opt/fladder
     rm -f "$temp_file"

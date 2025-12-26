@@ -29,7 +29,10 @@ if [[ -z "$RELEASE" ]]; then
 fi
 msg_info "Installing Fladder ${RELEASE}"
 temp_file=$(mktemp)
-curl -fsSL "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip" -o "$temp_file"
+URL="https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
+echo "Downloading from $URL"
+
+curl -fsSL "$URL" -o "$temp_file"
 $STD unzip -o "$temp_file" -d /opt/fladder
 rm -f "$temp_file"
 chmod +x /opt/fladder/Fladder
