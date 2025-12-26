@@ -23,7 +23,7 @@ function update_script() {
   header_info
   check_container_storage
   check_container_resources
-  update_os
+  
   if [[ ! -d /opt/fladder ]]; then
     msg_error "No ${APP} Installation Found!"
     exit
