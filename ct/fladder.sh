@@ -66,13 +66,6 @@ function update_script() {
       msg_ok "Configuration restored"
     fi
 
-    if systemctl is-active --quiet fladder; then
-      msg_info "Cleaning up old service"
-      systemctl disable -q --now fladder
-      rm -f /etc/systemd/system/fladder.service
-      msg_ok "Old service removed"
-    fi
-
     msg_info "Starting Service"
     systemctl start nginx
     msg_ok "Started Service"
