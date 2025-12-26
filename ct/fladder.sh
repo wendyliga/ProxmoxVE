@@ -28,7 +28,7 @@ function update_script() {
     msg_error "No ${APP} Installation Found!"
     exit
   fi
-  RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | grep -m1 '"tag_name"' | sed -E 's/.*"tag_name"\s*:\s*"([^"]+)".*/\1/')
+  RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | jq -r '.tag_name')
   if [[ -z "$RELEASE" ]]; then
     msg_error "Failed to fetch latest release version from GitHub"
     exit 1
