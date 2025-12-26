@@ -54,8 +54,3 @@ msg_ok "Created Service"
 motd_ssh
 customize
 cleanup_lxc
-
-msg_info "Cleaning up"
-$STD apt-get -y autoremove
-$STD apt-get -y autoclean
-msg_ok "Cleaned"
