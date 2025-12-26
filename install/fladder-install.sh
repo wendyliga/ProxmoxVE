@@ -30,7 +30,7 @@ fi
 msg_info "Installing Fladder ${RELEASE}"
 temp_file=$(mktemp)
 URL="https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
-echo "Downloading from $URL"
+msg_info "Downloading from $URL"
 
 curl -fsSL "$URL" -o "$temp_file"
 $STD unzip -o "$temp_file" -d /opt/fladder
