@@ -23,9 +23,21 @@ msg_ok "Installed Dependencies"
 msg_info "Installing ${APPLICATION}"
 mkdir -p /opt/fladder
 RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
+if [[ -z "$RELEASE" ]]; then
+  msg_error "Failed to fetch latest release version from GitHub"
+  exit 1
+fi
+msg_info "Installing Fladder v${RELEASE}"
 temp_file=$(mktemp)
-curl -fsSL "https://github.com/DonutWare/Fladder/releases/download/v${RELEASE}/Fladder-Linux-${RELEASE}.zip" -o "$temp_file"
-$STD unzip -o "$temp_file" -d /opt/fladder
+if [[ "$VERBOSE" == "yes" ]]; then
+  echo "Downloading Fladder v${RELEASE}..."
+  curl -fL# "https://github.com/DonutWare/Fladder/releases/download/v${RELEASE}/Fladder-Linux-${RELEASE}.zip" -o "$temp_file"
+  echo "Extracting Fladder..."
+  unzip -o "$temp_file" -d /opt/fladder
+else
+  curl -fsSL "https://github.com/DonutWare/Fladder/releases/download/v${RELEASE}/Fladder-Linux-${RELEASE}.zip" -o "$temp_file"
+  $STD unzip -o "$temp_file" -d /opt/fladder
+fi
 rm -f "$temp_file"
 chmod +x /opt/fladder/Fladder
 echo "${RELEASE}" >/opt/${APPLICATION}_version.txt
