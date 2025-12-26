@@ -6,7 +6,7 @@ source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxV
 # Source: https://github.com/DonutWare/Fladder
 
 APP="Fladder"
-var_tags="${var_tags:-media;jellyfin}"
+var_tags="${var_tags:-media}"
 var_cpu="${var_cpu:-2}"
 var_ram="${var_ram:-2048}"
 var_disk="${var_disk:-4}"
