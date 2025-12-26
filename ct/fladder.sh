@@ -37,35 +37,44 @@ function update_script() {
   fi
   if [[ ! -f /opt/${APP}_version.txt ]] || [[ "${RELEASE}" != "$(cat /opt/${APP}_version.txt)" ]]; then
     msg_info "Stopping Service"
-    systemctl stop fladder
+    systemctl stop nginx
     msg_ok "Stopped Service"
 
     msg_info "Backing up configuration"
-    if [[ -f /opt/fladder/data/flutter_assets/config/config.json ]]; then
+    if [[ -f /opt/fladder/assets/config/config.json ]]; then
+      cp /opt/fladder/assets/config/config.json /tmp/fladder_config.json.bak
+      msg_ok "Configuration backed up"
+    elif [[ -f /opt/fladder/data/flutter_assets/config/config.json ]]; then
       cp /opt/fladder/data/flutter_assets/config/config.json /tmp/fladder_config.json.bak
       msg_ok "Configuration backed up"
     fi
 
     msg_info "Updating ${APP} to ${RELEASE}"
     cd /opt
-    wget -q "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
+    wget -q "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Web-${RELEASE#v}.zip"
     rm -rf /opt/fladder
-    unzip -q "Fladder-Linux-${RELEASE#v}.zip" -d fladder
-    rm -f "Fladder-Linux-${RELEASE#v}.zip"
-    chmod +x /opt/fladder/Fladder
+    unzip -q "Fladder-Web-${RELEASE#v}.zip" -d fladder
+    rm -f "Fladder-Web-${RELEASE#v}.zip"
     echo "${RELEASE}" >/opt/${APP}_version.txt
     msg_ok "Updated ${APP} to ${RELEASE}"
 
     msg_info "Restoring configuration"
     if [[ -f /tmp/fladder_config.json.bak ]]; then
-      mkdir -p /opt/fladder/data/flutter_assets/config
-      cp /tmp/fladder_config.json.bak /opt/fladder/data/flutter_assets/config/config.json
+      mkdir -p /opt/fladder/assets/config
+      cp /tmp/fladder_config.json.bak /opt/fladder/assets/config/config.json
       rm -f /tmp/fladder_config.json.bak
       msg_ok "Configuration restored"
     fi
 
+    if systemctl is-active --quiet fladder; then
+      msg_info "Cleaning up old service"
+      systemctl disable -q --now fladder
+      rm -f /etc/systemd/system/fladder.service
+      msg_ok "Old service removed"
+    fi
+
     msg_info "Starting Service"
-    systemctl start fladder
+    systemctl start nginx
     msg_ok "Started Service"
     msg_ok "Updated successfully!"
   else

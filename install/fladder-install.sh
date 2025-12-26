@@ -17,7 +17,7 @@ msg_info "Installing Dependencies"
 $STD apt-get install -y \
   wget \
   unzip \
-  libmpv-dev
+  nginx
 msg_ok "Installed Dependencies"
 
 msg_info "Installing ${APPLICATION}"
@@ -25,33 +25,32 @@ msg_info "Installing ${APPLICATION}"
 RELEASE=$(curl -fsSL https://api.github.com/repos/DonutWare/Fladder/releases/latest | \
     grep "tag_name" | awk '{print substr($2, 2, length($2)-3)}')
 cd /opt
-$STD wget -q "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
-$STD unzip -o "Fladder-Linux-${RELEASE#v}.zip" -d fladder
+$STD wget -q "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Web-${RELEASE#v}.zip"
+$STD unzip -o "Fladder-Web-${RELEASE#v}.zip" -d fladder
 
-rm -f "Fladder-Linux-${RELEASE#v}.zip"
-chmod +x /opt/fladder/Fladder
+rm -f "Fladder-Web-${RELEASE#v}.zip"
 echo "${RELEASE}" >/opt/${APPLICATION}_version.txt
 msg_ok "Installed ${APPLICATION}"
 
-msg_info "Creating Service"
-cat <<EOF >/etc/systemd/system/fladder.service
-[Unit]
-Description=Fladder - Jellyfin Frontend
-After=network.target
+msg_info "Configuring Nginx"
+cat <<EOF >/etc/nginx/conf.d/fladder.conf
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/opt/fladder
-ExecStart=/opt/fladder/Fladder
-Restart=always
-RestartSec=5
+    server_name _;
 
-[Install]
-WantedBy=multi-user.target
+    root /opt/fladder;
+    index index.html;
+
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+}
 EOF
-systemctl enable -q --now fladder
-msg_ok "Created Service"
+rm -f /etc/nginx/sites-enabled/default
+systemctl enable -q --now nginx
+msg_ok "Configured Nginx"
 
 motd_ssh
 customize
