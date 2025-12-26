@@ -40,23 +40,29 @@ function update_script() {
     systemctl stop fladder
     msg_ok "Stopped Service"
 
-    msg_info "Updating ${APP} to ${RELEASE}"
-    temp_file=$(mktemp)
-    URL="https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
-    msg_info "Downloading from $URL"
-
-    wget -q "$URL" -O "$temp_file"
-    
-    rm -rf /opt/fladder/*
-    if ! $STD unzip -o "$temp_file" -d /opt/fladder; then
-      msg_error "Extraction failed from $temp_file"
-      rm -f "$temp_file"
-      exit 1
+    msg_info "Backing up configuration"
+    if [[ -f /opt/fladder/data/flutter_assets/config/config.json ]]; then
+      cp /opt/fladder/data/flutter_assets/config/config.json /tmp/fladder_config.json.bak
+      msg_ok "Configuration backed up"
     fi
-    rm -f "$temp_file"
+
+    msg_info "Updating ${APP} to ${RELEASE}"
+    cd /opt
+    wget -q "https://github.com/DonutWare/Fladder/releases/download/${RELEASE}/Fladder-Linux-${RELEASE#v}.zip"
+    rm -rf /opt/fladder
+    unzip -q "Fladder-Linux-${RELEASE#v}.zip" -d fladder
+    rm -f "Fladder-Linux-${RELEASE#v}.zip"
     chmod +x /opt/fladder/Fladder
     echo "${RELEASE}" >/opt/${APP}_version.txt
     msg_ok "Updated ${APP} to ${RELEASE}"
+
+    msg_info "Restoring configuration"
+    if [[ -f /tmp/fladder_config.json.bak ]]; then
+      mkdir -p /opt/fladder/data/flutter_assets/config
+      cp /tmp/fladder_config.json.bak /opt/fladder/data/flutter_assets/config/config.json
+      rm -f /tmp/fladder_config.json.bak
+      msg_ok "Configuration restored"
+    fi
 
     msg_info "Starting Service"
     systemctl start fladder
